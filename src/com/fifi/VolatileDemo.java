@@ -18,6 +18,14 @@ public class VolatileDemo {
 
     // main是一切方法的运行入口
     public static void main(String[] args) {
+        seeOkByVolatile();
+
+    }
+
+    /**
+     * volatile 可以保证可见性，及时通知其他线程，主物理内存的值已经被修改
+     */
+    private static void seeOkByVolatile() {
         MyData myData = new MyData(); // 资源类
 
         new Thread(() -> {
@@ -40,18 +48,13 @@ public class VolatileDemo {
         }
 
         System.out.println(Thread.currentThread().getName() + "\t missison is over");
-
     }
-
-
-
-
 
 
 }
 
 class MyData{
-    int number = 0;
+    volatile int number = 0;
 
     public void addTo60(){
         number = 60;
