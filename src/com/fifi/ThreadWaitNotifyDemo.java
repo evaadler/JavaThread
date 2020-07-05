@@ -1,6 +1,9 @@
 package com.fifi;
 
 import java.awt.image.VolatileImage;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * ThreadWaitNotifyDemo
@@ -23,6 +26,7 @@ public class ThreadWaitNotifyDemo {
 
     public static void main(String[] args) throws Exception{
         Data data = new Data();
+
 
 
             new Thread(() -> {
@@ -80,28 +84,50 @@ public class ThreadWaitNotifyDemo {
 
 class Data{
     private int number = 0;
-    public synchronized void add() throws InterruptedException {
-        // 1. 判断
-        while (number != 0) {
-             this.wait();
-        }
+    Lock lock = new ReentrantLock();
+    Condition condition = lock.newCondition();
 
-        // 2. 干活
-        number ++;
-        System.out.println(Thread.currentThread().getName()+"\t"+number);
-        // 3. 通知
-        this.notifyAll();
+    public void add() throws InterruptedException {
+        lock.lock();
+        try {
+            // 1. 判断
+            while (number != 0) {
+                //this.wait();
+                condition.await();
+            }
+
+            // 2. 干活
+            number++;
+            System.out.println(Thread.currentThread().getName() + "\t" + number);
+            // 3. 通知
+            //this.notifyAll();
+            condition.signalAll();
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            lock.unlock();
+        }
 
     }
-    public synchronized void sub() throws InterruptedException {
-        while (number == 0) {
-            this.wait();
-        }
-        number --;
+    public void sub() throws InterruptedException {
+        lock.lock();
 
-        System.out.println(Thread.currentThread().getName()+"\t"+number);
-        // 3. 通知
-        this.notifyAll();
+        try {
+            while (number == 0) {
+                //this.wait();
+                condition.await();
+            }
+            number--;
+
+            System.out.println(Thread.currentThread().getName() + "\t" + number);
+            // 3. 通知
+            //this.notifyAll();
+            condition.signalAll();
+        }catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            lock.unlock();
+        }
     }
 
     public int getNumber() {
