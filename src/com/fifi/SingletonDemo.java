@@ -13,15 +13,29 @@ import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader;
  */
 public class SingletonDemo {
 
-    private static SingletonDemo instance = null;
+    private static volatile SingletonDemo instance = null;
 
     private SingletonDemo(){
         System.out.println(Thread.currentThread().getName()+"\t 我是构造方法 ");
     }
 
+    // DCL (Double Check Lock 双端检索机制)
+
+    /**
+     * 不关闭整个厕所（形象）
+     * @return
+     */
     public static SingletonDemo getInstance(){
+        // 先看这个坑位有没有人
         if (instance == null) {
-            instance =  new SingletonDemo();
+            // 如果没有人就进去上把锁
+            synchronized (SingletonDemo.class) {
+                // 进去之后不放心，再推推门看看是否锁住了
+                if (instance == null) {
+                    // 锁住了就干活
+                    instance = new SingletonDemo();
+                }
+            }
         }
         return instance;
     }
