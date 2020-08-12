@@ -1,9 +1,6 @@
 package com.fifi;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -16,7 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * 解决方案：
  *  1. Vector
- *  2.  Collections.synchronizedList(new ArrayList<>());
+ *  2. Collections.synchronizedList(new ArrayList<>());
  *  3. CopyOnWriteArrayList
  *
  * 优化建议(同样的错误，不要出现第2次)：
@@ -28,12 +25,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class ArrayListNotSafeDemo {
 
     public static void main(String[] args) {
-        List<String> list = new CopyOnWriteArrayList();
+        Set<String> set = new HashSet<>();
 
         for (int i=0; i<30; i++){
             new Thread(()->{
-                list.add(UUID.randomUUID().toString().substring(0,8));
-                System.out.println(list);
+                set.add(UUID.randomUUID().toString().substring(0,8));
+                System.out.println(set);
             }, String.valueOf(i)).start();
         }
     }
