@@ -5,6 +5,7 @@ import com.sun.javafx.image.impl.ByteIndexed;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * ReadWriteLockDemo
@@ -41,9 +42,11 @@ public class ReadWriteLockDemo {
 
 class MyCache{
     private volatile Map<String, Object> map = new HashMap<>();
+    ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
 
     // 写方法
     public void put(String key, Object value){
+        rwLock.writeLock().lock();
         System.out.println(Thread.currentThread().getName() + "\t 正在写入：" + key);
         try {
             TimeUnit.SECONDS.sleep(1);
@@ -52,10 +55,12 @@ class MyCache{
             e.printStackTrace();
         }
         System.out.println(Thread.currentThread().getName() + "\t 写入完成");
+        rwLock.writeLock().unlock();
     }
 
     // 读方法
     public void get(String key){
+        rwLock.readLock().lock();
         System.out.println(Thread.currentThread().getName() + "\t 正在读取：" + key);
         try {
             TimeUnit.SECONDS.sleep(1);
@@ -65,6 +70,7 @@ class MyCache{
         }
         Object result = map.get(key);
         System.out.println(Thread.currentThread().getName() + "\t 读取完成 " + result);
+        rwLock.readLock().unlock();
     }
 }
 
